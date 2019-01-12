@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jan  3 16:41:58 2019
-
 @author: neils
 """
 
@@ -40,10 +39,12 @@ def convertPngToNpy():
 
 def directorySearch(directory, label):
     x, y = [], []
-    for file in tqdm(os.listdir(directory)[0:5]):
+    for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
+        #if file.endswith('.npy'):
             path = os.path.join(directory, file)
             x.append(cv2.resize(cv2.imread(path),(256,256)))
+            #x.append(np.load(path))
             y.append(label)
     return x, y
 
@@ -87,7 +88,7 @@ def buildModel():
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(128,128,3)))
+    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(256,256,3)))
     model.add(keras.layers.BatchNormalization())
     #model.add(keras.layers.Conv2D(64, 3, activation='relu'))
     #model.add(keras.layers.BatchNormalization())
