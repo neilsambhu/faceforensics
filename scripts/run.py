@@ -43,7 +43,7 @@ def directorySearch(directory, label):
     for file in tqdm(os.listdir(directory)[0:5]):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
-            x.append(cv2.resize(cv2.imread(path),(128,128)))
+            x.append(cv2.resize(cv2.imread(path),(256,256)))
             y.append(label)
     return x, y
 
@@ -80,9 +80,11 @@ def readImages(pathData):
     
     return train_x, train_y, test_x, test_y 
 
-def buildModel(train_x, train_y):
+def buildModel():
     # create model
     model = keras.models.Sequential()
+#    with tf.device('/cpu:0'):
+#        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
     model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(128,128,3)))
@@ -106,7 +108,7 @@ def buildModel(train_x, train_y):
     model.add(keras.layers.Dense(1, activation='sigmoid'))
     
     # multiple GPUs
-    #model = multi_gpu_model(model, gpus=9)
+    model = multi_gpu_model(model, gpus=16)
     
     # compile
     model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])    
@@ -119,7 +121,7 @@ def main():
     print('Image reading finished at {}'.format(str(datetime.datetime.now())))
     
     print('Model building started at {}'.format(str(datetime.datetime.now())))
-    model = buildModel(train_x, train_y)
+    model = buildModel()
     print('Model building finished at {}'.format(str(datetime.datetime.now())))
     
     print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
