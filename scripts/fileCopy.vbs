@@ -1,8 +1,8 @@
 Option Explicit
-' The source path for the copy operation.Const strSourceFolder = "\\tsclient\D\Neil_TFS\AR Emotion Research\faceforensics\data\FaceForensics_selfreenactment_images\test\altered\"
-' The target path for the copy operation.Const strTargetFolder = "../data/FaceForensics_selfreenactment_images/test/"
-' The list of files to copy. Should be a text file with one file on each row. No paths - just file name.Const strFileList = "../data/FaceForensics_selfreenactment_images/test/copy.txt"
-' Should files be overwriten if they already exist? TRUE or FALSE.Const blnOverwrite = FALSE
+' The source path for the copy operation.Const strSourceFolder = "\\tsclient\D\Neil_TFS\AR Emotion Research\faceforensics\data\FaceForensics_selfreenactment_images\test\original\"
+' The target path for the copy operation.Const strTargetFolder = "../data/FaceForensics_selfreenactment_images/test/original/"
+' The list of files to copy. Should be a text file with one file on each row. No paths - just file name.Const strFileList = "../data/FaceForensics_selfreenactment_images/test/BadImagesOriginal.txt"
+' Should files be overwriten if they already exist? TRUE or FALSE.Const blnOverwrite = TRUE
 Dim objFSO
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Const ForReading = 1

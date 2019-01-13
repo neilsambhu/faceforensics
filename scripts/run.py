@@ -39,25 +39,25 @@ def convertPngToNpy():
 
 def directorySearch(directory, label):
     x, y = [], []
-    if label is 0:
-        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesOriginal.txt', 'w+')
-    elif label is 1:
-        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesAltered.txt', 'w+')
-    else:
-        print('label should be 0 or 1')
-    #countBadImages = 0
+#    if label is 0:
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesOriginal.txt', 'w+')
+#    elif label is 1:
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesAltered.txt', 'w+')
+#    else:
+#        print('label should be 0 or 1')
+    countBadImages = 0
     for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
             if img is None:
-                fileBadImages.write(file)
-                #countBadImages += 1
+                #fileBadImages.write(file + '\n')
+                countBadImages += 1
                 pass
             else:
                 x.append(cv2.resize(img,(256,256)))
                 y.append(label)
-    #print('Bad images count: {}'.format(countBadImages))
+    print('Bad images count: {}'.format(countBadImages))
     return x, y
 
 # preprocessing
@@ -100,9 +100,9 @@ def buildModel():
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(128, 3, activation='relu', input_shape=(256,256,3)))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(256,256,3)))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
     # max pooling
