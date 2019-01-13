@@ -39,13 +39,25 @@ def convertPngToNpy():
 
 def directorySearch(directory, label):
     x, y = [], []
+    if label is 0:
+        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesOriginal.txt', 'w+')
+    elif label is 1:
+        fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/BadImagesAltered.txt', 'w+')
+    else:
+        print('label should be 0 or 1')
+    #countBadImages = 0
     for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
-        #if file.endswith('.npy'):
             path = os.path.join(directory, file)
-            x.append(cv2.resize(cv2.imread(path),(256,256)))
-            #x.append(np.load(path))
-            y.append(label)
+            img = cv2.imread(path)
+            if img is None:
+                fileBadImages.write(file)
+                #countBadImages += 1
+                pass
+            else:
+                x.append(cv2.resize(img,(256,256)))
+                y.append(label)
+    #print('Bad images count: {}'.format(countBadImages))
     return x, y
 
 # preprocessing
@@ -65,19 +77,19 @@ def readImages(pathData):
     print('Length of y_TestAltered: {}'.format(len(y_TestAltered)))
     
     # setup training data
-    train_x = np.asarray(x_TestOriginal[0:len(x_TestOriginal)//2] + x_TestAltered[0:len(x_TestAltered)//2])
-    train_y = np.asarray(y_TestOriginal[0:len(y_TestOriginal)//2] + y_TestAltered[0:len(y_TestAltered)//2])
+    train_x = np.asarray(x_TestOriginal[0:9*len(x_TestOriginal)//10] + x_TestAltered[0:9*len(x_TestAltered)//10])
+    train_y = np.asarray(y_TestOriginal[0:9*len(y_TestOriginal)//10] + y_TestAltered[0:9*len(y_TestAltered)//10])
     train_x, train_y = sklearn.utils.shuffle(train_x, train_y)
     
     # setup testing data
-    test_x = np.asarray(x_TestOriginal[len(x_TestOriginal)//2:-1] + x_TestAltered[len(x_TestAltered)//2:-1])
-    test_y = np.asarray(y_TestOriginal[len(y_TestOriginal)//2:-1] + y_TestAltered[len(y_TestAltered)//2:-1])
-    test_x, train_y = sklearn.utils.shuffle(test_x, train_y)
+    test_x = np.asarray(x_TestOriginal[9*len(x_TestOriginal)//10:-1] + x_TestAltered[9*len(x_TestAltered)//10:-1])
+    test_y = np.asarray(y_TestOriginal[9*len(y_TestOriginal)//10:-1] + y_TestAltered[9*len(y_TestAltered)//10:-1])
+    test_x, test_y = sklearn.utils.shuffle(test_x, test_y)
     
     print('Length of train_x: {}'.format(len(train_x)))
     print('Length of train_y: {}'.format(len(train_y)))
     print('Length of test_x: {}'.format(len(test_x)))
-    print('Length of train_y: {}'.format(len(train_y)))
+    print('Length of test_y: {}'.format(len(test_y)))
     
     return train_x, train_y, test_x, test_y 
 
@@ -88,10 +100,10 @@ def buildModel():
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(256,256,3)))
+    model.add(keras.layers.Conv2D(128, 3, activation='relu', input_shape=(256,256,3)))
     model.add(keras.layers.BatchNormalization())
-    #model.add(keras.layers.Conv2D(64, 3, activation='relu'))
-    #model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
     
     # max pooling
     model.add(keras.layers.MaxPooling2D())
@@ -100,7 +112,7 @@ def buildModel():
     model.add(keras.layers.Flatten())
     
     # fully connected layer
-    model.add(keras.layers.Dense(8, activation='relu'))
+    model.add(keras.layers.Dense(100, activation='relu'))
     
     # dropout
     model.add(keras.layers.Dropout(0.5))
@@ -127,7 +139,7 @@ def main():
     
     print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
     # fit model to data
-    model.fit(x=train_x, y=train_y, batch_size=64, epochs=50, verbose=2, callbacks=[keras.callbacks.EarlyStopping('loss',0.0001,2)])
+    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, callbacks=[keras.callbacks.EarlyStopping('loss',0.0001,2)])
     print(model.evaluate(test_x, test_y))
     print('Model evaluation finished at {}'.format(str(datetime.datetime.now())))
 
