@@ -71,10 +71,10 @@ def readImages(pathData):
     x_TestOriginal, y_TestOriginal = sklearn.utils.shuffle(x_TestOriginal, y_TestOriginal)
     x_TestAltered, y_TestAltered = sklearn.utils.shuffle(x_TestAltered, y_TestAltered)
     
-    print('Length of x_TestOriginal: {}'.format(len(x_TestOriginal)))
-    print('Length of y_TestOriginal: {}'.format(len(y_TestOriginal)))
-    print('Length of x_TestAltered: {}'.format(len(x_TestAltered)))
-    print('Length of y_TestAltered: {}'.format(len(y_TestAltered)))
+#    print('Length of x_TestOriginal: {}'.format(len(x_TestOriginal)))
+#    print('Length of y_TestOriginal: {}'.format(len(y_TestOriginal)))
+#    print('Length of x_TestAltered: {}'.format(len(x_TestAltered)))
+#    print('Length of y_TestAltered: {}'.format(len(y_TestAltered)))
     
     # setup training data
     train_x = np.asarray(x_TestOriginal[0:9*len(x_TestOriginal)//10] + x_TestAltered[0:9*len(x_TestAltered)//10])
@@ -86,10 +86,10 @@ def readImages(pathData):
     test_y = np.asarray(y_TestOriginal[9*len(y_TestOriginal)//10:-1] + y_TestAltered[9*len(y_TestAltered)//10:-1])
     test_x, test_y = sklearn.utils.shuffle(test_x, test_y)
     
-    print('Length of train_x: {}'.format(len(train_x)))
-    print('Length of train_y: {}'.format(len(train_y)))
-    print('Length of test_x: {}'.format(len(test_x)))
-    print('Length of test_y: {}'.format(len(test_y)))
+#    print('Length of train_x: {}'.format(len(train_x)))
+#    print('Length of train_y: {}'.format(len(train_y)))
+#    print('Length of test_x: {}'.format(len(test_x)))
+#    print('Length of test_y: {}'.format(len(test_y)))
     
     return train_x, train_y, test_x, test_y 
 
@@ -121,7 +121,7 @@ def buildModel():
     model.add(keras.layers.Dense(1, activation='sigmoid'))
     
     # multiple GPUs
-    model = multi_gpu_model(model, gpus=16)
+    #model = multi_gpu_model(model, gpus=16)
     
     # compile
     model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])    
@@ -139,7 +139,9 @@ def main():
     
     print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
     # fit model to data
-    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, callbacks=[keras.callbacks.EarlyStopping('loss',0.0001,2)])
+    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, 
+              callbacks=[keras.callbacks.EarlyStopping('loss',0.0001,2)],
+              validation_data=(test_x, test_y))
     print(model.evaluate(test_x, test_y))
     print('Model evaluation finished at {}'.format(str(datetime.datetime.now())))
 
