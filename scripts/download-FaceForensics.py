@@ -49,7 +49,7 @@ def download_files(filenames, base_url, output_path, sample_only=False):
     num_filenames=len(filenames) if not sample_only else NUM_SAMPLES
     print('Total files: {}'.format(num_filenames))
     #for i, filename in enumerate(filenames):
-    for i, filename in tqdm(enumerate(filenames)): # Neil modification
+    for i, filename in enumerate(tqdm(filenames)): # Neil modification
         # Neil modification
 		#if i % 10 == 0:
         #    print("{}/{}".format(i, num_filenames))
