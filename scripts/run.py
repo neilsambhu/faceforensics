@@ -44,9 +44,9 @@ def convertPngToNpy():
 def directorySearch(directory, label):
 	x, y = [], []
 	if label is 0:
-		fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/{0}-BadImagesOriginal.txt'.format(str(datetime.datetime.now())), 'w+')
+		fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesOriginal.txt'.format(str(datetime.datetime.now())), 'w+')
 	elif label is 1:
-		fileBadImages = open('../data/FaceForensics_selfreenactment_images/test/{0}-BadImagesAltered.txt'.format(str(datetime.datetime.now())), 'w+')
+		fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesAltered.txt'.format(str(datetime.datetime.now())), 'w+')
 	else:
 		print('Error: label should be 0 or 1')
 		return
@@ -56,7 +56,7 @@ def directorySearch(directory, label):
 			path = os.path.join(directory, file)
 			img = cv2.imread(path)
 			if img is None:
-				#fileBadImages.write(file + '\n')
+				fileBadImages.write(file + '\n')
 				countBadImages += 1
 				pass
 			else:
