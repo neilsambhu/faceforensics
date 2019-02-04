@@ -74,15 +74,15 @@ def verifyLength(list1, list2, list1Name, list2Name):
 
 # preprocessing
 def readImages(pathData):
-#    # get test data
-#    pathTestOriginal = '{}test/original/'.format(pathData)
-#    x_TestOriginal, y_TestOriginal = directorySearch(pathTestOriginal, 0)
-#    verifyLength(x_TestOriginal, y_TestOriginal, 'x_TestOriginal', 'y_TestOriginal')
-#    pathTestAltered = '{}test/altered/'.format(pathData)
-#    x_TestAltered, y_TestAltered = directorySearch(pathTestAltered, 1)
-#    verifyLength(x_TestAltered, y_TestAltered, 'x_TestAltered', 'y_TestAltered')
-    x_TestOriginal, y_TestOriginal = [],[]
-    x_TestAltered, y_TestAltered = [],[]
+    # get test data
+    pathTestOriginal = '{}test/original/'.format(pathData)
+    x_TestOriginal, y_TestOriginal = directorySearch(pathTestOriginal, 0)
+    verifyLength(x_TestOriginal, y_TestOriginal, 'x_TestOriginal', 'y_TestOriginal')
+    pathTestAltered = '{}test/altered/'.format(pathData)
+    x_TestAltered, y_TestAltered = directorySearch(pathTestAltered, 1)
+    verifyLength(x_TestAltered, y_TestAltered, 'x_TestAltered', 'y_TestAltered')
+#    x_TestOriginal, y_TestOriginal = [],[]
+#    x_TestAltered, y_TestAltered = [],[]
 
     # get train data
     pathTrainOriginal = '{}train/original/'.format(pathData)
@@ -92,15 +92,15 @@ def readImages(pathData):
     x_TrainAltered, y_TrainAltered = directorySearch(pathTrainAltered, 1)
     verifyLength(x_TrainAltered, y_TrainAltered, 'x_TrainAltered', 'y_TrainAltered')
 
-#    # get val data
-#    pathValOriginal = '{}val/original/'.format(pathData)
-#    x_ValOriginal, y_ValOriginal = directorySearch(pathValOriginal, 0)
-#    verifyLength(x_ValOriginal, y_ValOriginal, 'x_ValOriginal', 'y_ValOriginal')
-#    pathValAltered = '{}val/altered/'.format(pathData)
-#    x_ValAltered, y_ValAltered = directorySearch(pathValAltered, 1)
-#    verifyLength(x_ValAltered, y_ValAltered, 'x_ValAltered', 'y_ValAltered')
-    x_ValOriginal, y_ValOriginal = [],[]
-    x_ValAltered, y_ValAltered = [],[]
+    # get val data
+    pathValOriginal = '{}val/original/'.format(pathData)
+    x_ValOriginal, y_ValOriginal = directorySearch(pathValOriginal, 0)
+    verifyLength(x_ValOriginal, y_ValOriginal, 'x_ValOriginal', 'y_ValOriginal')
+    pathValAltered = '{}val/altered/'.format(pathData)
+    x_ValAltered, y_ValAltered = directorySearch(pathValAltered, 1)
+    verifyLength(x_ValAltered, y_ValAltered, 'x_ValAltered', 'y_ValAltered')
+#    x_ValOriginal, y_ValOriginal = [],[]
+#    x_ValAltered, y_ValAltered = [],[]
     
     # setup testing data
     test_x = np.asarray(x_TestOriginal + x_TestAltered)
