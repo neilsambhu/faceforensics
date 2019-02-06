@@ -81,8 +81,6 @@ def readImages(pathData):
     pathTestAltered = '{}test/altered/'.format(pathData)
     x_TestAltered, y_TestAltered = directorySearch(pathTestAltered, 1)
     verifyLength(x_TestAltered, y_TestAltered, 'x_TestAltered', 'y_TestAltered')
-#    x_TestOriginal, y_TestOriginal = [],[]
-#    x_TestAltered, y_TestAltered = [],[]
 
     # get train data
     pathTrainOriginal = '{}train/original/'.format(pathData)
@@ -99,9 +97,7 @@ def readImages(pathData):
     pathValAltered = '{}val/altered/'.format(pathData)
     x_ValAltered, y_ValAltered = directorySearch(pathValAltered, 1)
     verifyLength(x_ValAltered, y_ValAltered, 'x_ValAltered', 'y_ValAltered')
-#    x_ValOriginal, y_ValOriginal = [],[]
-#    x_ValAltered, y_ValAltered = [],[]
-    
+
     # setup testing data
     test_x = np.asarray(x_TestOriginal + x_TestAltered)
     test_y = np.asarray(y_TestOriginal + y_TestAltered)
@@ -152,7 +148,7 @@ def buildModel(pathBase):
     model.add(keras.layers.Dense(1, activation='sigmoid'))
     
     # multiple GPUs
-    #model = multi_gpu_model(model, gpus=8)
+    model = multi_gpu_model(model, gpus=16)
     
     # resume from checkpoint
     savedModelFiles = find_files(pathBase, '*.hdf5')
@@ -176,22 +172,22 @@ def main():
     test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
     print('Image reading finished at {}'.format(str(datetime.datetime.now())))
     
-#    print('Model building started at {}'.format(str(datetime.datetime.now())))
-#    model = buildModel(pathBase)
-#    print('Model building finished at {}'.format(str(datetime.datetime.now())))
-#    
-#    print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
-#    # fit model to data
-#    checkpoint = ModelCheckpoint('{}{epoch:02d}-{val_acc:.2f}.hdf5'.format(pathBase), 
-#								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-#    earlyStop = EarlyStopping('loss',0.0001,2)
-#    callbacks_list = [checkpoint, earlyStop]
-#    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, 
-#              callbacks=callbacks_list,
-#              validation_data=(val_x, val_y),
-#              initial_epoch=0)    
-#    print(model.evaluate(test_x, test_y))
-#    print('Model evaluation finished at {}'.format(str(datetime.datetime.now())))
+    print('Model building started at {}'.format(str(datetime.datetime.now())))
+    model = buildModel(pathBase)
+    print('Model building finished at {}'.format(str(datetime.datetime.now())))
+    
+    print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
+    # fit model to data
+    checkpoint = ModelCheckpoint('{}{epoch:02d}-{val_acc:.2f}.hdf5'.format(pathBase), 
+								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+    earlyStop = EarlyStopping('loss',0.0001,2)
+    callbacks_list = [checkpoint, earlyStop]
+    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, 
+              callbacks=callbacks_list,
+              validation_data=(val_x, val_y),
+              initial_epoch=0)    
+    print(model.evaluate(test_x, test_y))
+    print('Model evaluation finished at {}'.format(str(datetime.datetime.now())))
 
 if __name__ == "__main__":
     main()
