@@ -128,9 +128,9 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(256,256,3)))
+    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(256,256,3)))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(64 , 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
     # max pooling
@@ -157,9 +157,9 @@ def buildModel(pathBase):
         if len(savedModelFiles) > 1:
             print('Error: There are multiple saved model files.')
             return
-        print("Resumed model's weights from {}".format(savedModelFiles[0]))
+        print("Resumed model's weights from {}".format(savedModelFiles[-1]))
         # load weights
-        model.load_weights(savedModelFiles[0])
+        model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
     model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
