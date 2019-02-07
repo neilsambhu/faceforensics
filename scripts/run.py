@@ -44,11 +44,13 @@ def convertPngToNpy():
 
 def directorySearch(directory, label):
     x, y = [], []
-    time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
+#    time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     if label is 0:
-        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesOriginal.txt'.format(time), 'w+')
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesOriginal.txt'.format(time), 'w+')
+        pass
     elif label is 1:
-        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesAltered.txt'.format(time), 'w+')
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesAltered.txt'.format(time), 'w+')
+        pass
     else:
         print('Error: label should be 0 or 1')
         return
@@ -58,13 +60,12 @@ def directorySearch(directory, label):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
             if img is None:
-                fileBadImages.write(file + '\n')
+#                fileBadImages.write(file + '\n')
                 countBadImages += 1
                 pass
             else:
-                pass
-                #x.append(cv2.resize(img,(256,256)))
-                # y.append(label)
+                x.append(cv2.resize(img,(256,256)))
+                y.append(label)
     print('Bad images count: {}'.format(countBadImages))
     return x, y
 
@@ -161,7 +162,7 @@ def buildModel(pathBase):
         model.load_weights(savedModelFiles[0])
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])    
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
     
     return model
 
@@ -178,7 +179,8 @@ def main():
     
     print('Model evaluation started at {}'.format(str(datetime.datetime.now())))
     # fit model to data
-    checkpoint = ModelCheckpoint('{}{epoch:02d}-{val_acc:.2f}.hdf5'.format(pathBase), 
+    time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
+    checkpoint = ModelCheckpoint('{0}{1}_{{epoch:02d}}-{{val_acc:.2f}}.hdf5'.format(pathBase, time), 
 								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('loss',0.0001,2)
     callbacks_list = [checkpoint, earlyStop]
