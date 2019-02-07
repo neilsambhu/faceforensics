@@ -20,27 +20,27 @@ import glob
 import fnmatch
 from time import gmtime, strftime
 
-def convertPngToNpy():
-    sourceDirs = ['../data/FaceForensics_selfreenactment_images/test/altered/', 
-                  '../data/FaceForensics_selfreenactment_images/test/original/']
-    destinationDirs = list()
-    for sourcePath in sourceDirs:
-        destinationPath = sourcePath.replace('FaceForensics_selfreenactment_images', 'FaceForensics_selfreenactment_images_npy')
-        destinationDirs.append(destinationPath)
-        if not os.path.exists(destinationPath):
-               os.makedirs(destinationPath)
-    
-    if len(sourceDirs) is not len(destinationDirs):
-        print('ERROR: length of sourceDirs and destinationDirs is not equal')
-    
-    for i, sourceDir in enumerate(sourceDirs):
-        print('PNG to NPY conversion of {} started at {}'.format(sourceDir, str(datetime.datetime.now())))
-        for file in tqdm(os.listdir(sourceDir)):
-            if file.endswith('.png'):
-                path = os.path.join(sourceDir, file)
-                img = cv2.resize(cv2.imread(path), (256,256))
-                np.save(os.path.join(destinationDirs[i], file), img)
-        print('PNG to NPY conversion of {} ended at {}'.format(sourceDir, str(datetime.datetime.now())))
+#def convertPngToNpy():
+#    sourceDirs = ['../data/FaceForensics_selfreenactment_images/test/altered/', 
+#                  '../data/FaceForensics_selfreenactment_images/test/original/']
+#    destinationDirs = list()
+#    for sourcePath in sourceDirs:
+#        destinationPath = sourcePath.replace('FaceForensics_selfreenactment_images', 'FaceForensics_selfreenactment_images_npy')
+#        destinationDirs.append(destinationPath)
+#        if not os.path.exists(destinationPath):
+#               os.makedirs(destinationPath)
+#    
+#    if len(sourceDirs) is not len(destinationDirs):
+#        print('ERROR: length of sourceDirs and destinationDirs is not equal')
+#    
+#    for i, sourceDir in enumerate(sourceDirs):
+#        print('PNG to NPY conversion of {} started at {}'.format(sourceDir, str(datetime.datetime.now())))
+#        for file in tqdm(os.listdir(sourceDir)):
+#            if file.endswith('.png'):
+#                path = os.path.join(sourceDir, file)
+#                img = cv2.resize(cv2.imread(path), (256,256))
+#                np.save(os.path.join(destinationDirs[i], file), img)
+#        print('PNG to NPY conversion of {} ended at {}'.format(sourceDir, str(datetime.datetime.now())))
 
 def directorySearch(directory, label):
     x, y = [], []
@@ -64,7 +64,7 @@ def directorySearch(directory, label):
                 countBadImages += 1
                 pass
             else:
-                x.append(cv2.resize(img,(256,256)))
+                x.append(cv2.resize(img,(128,128)))
                 y.append(label)
     print('Bad images count: {}'.format(countBadImages))
     return x, y
@@ -128,9 +128,9 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(256,256,3)))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(128,128,3)))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(64 , 3, activation='relu'))
+    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
     # max pooling
