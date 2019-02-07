@@ -66,7 +66,8 @@ def directorySearch(directory, label):
             else:
                 x.append(cv2.resize(img,(128,128)))
                 y.append(label)
-    print('Bad images count: {}'.format(countBadImages))
+    if countBadImages > 0:
+        print('Bad images count: {}'.format(countBadImages))
     return x, y
 
 def verifyLength(list1, list2, list1Name, list2Name):
