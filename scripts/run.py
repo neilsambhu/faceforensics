@@ -9,16 +9,16 @@ import numpy as np
 import cv2
 import keras
 from keras.utils import multi_gpu_model
-from keras.applications import Xception
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
 import sklearn
 import datetime
 from tqdm import tqdm
-import tensorflow as tf
-import glob
 import fnmatch
 from time import gmtime, strftime
+from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing import Process
+import itertools
 
 #def convertPngToNpy():
 #    sourceDirs = ['../data/FaceForensics_selfreenactment_images/test/altered/', 
@@ -42,7 +42,8 @@ from time import gmtime, strftime
 #                np.save(os.path.join(destinationDirs[i], file), img)
 #        print('PNG to NPY conversion of {} ended at {}'.format(sourceDir, str(datetime.datetime.now())))
 
-def directorySearch(directory, label):
+def directorySearch(directory, label, dataName):
+    print('Started directory search of {} at {}'.format(dataName, str(datetime.datetime.now())))
     x, y = [], []
 #    time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     if label is 0:
@@ -55,7 +56,7 @@ def directorySearch(directory, label):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
-    for file in tqdm(os.listdir(directory)):
+    for file in tqdm(os.listdir(directory)[0:2000]):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
@@ -68,6 +69,42 @@ def directorySearch(directory, label):
                 y.append(label)
     if countBadImages > 0:
         print('Bad images count: {}'.format(countBadImages))
+    print('Ended directory search of {} at {}'.format(dataName, str(datetime.datetime.now())))
+    return x, y
+
+def directorySearchParallelHelper(directory, file, label):
+    if file.endswith('.png'):
+        path = os.path.join(directory, file)
+        img = cv2.imread(path)
+        if img is not None:
+            return cv2.resize(img,(128,128)), label
+        else:
+            print('Error: image {} is None'.format(path))
+            return None, None
+
+def directorySearchParallel(directory, label, dataName):
+    print('Started directory search of {} at {}'.format(dataName, str(datetime.datetime.now())))
+    x, y = [], []
+    pool = ThreadPool()
+#    time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
+    if label is 0:
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesOriginal.txt'.format(time), 'w+')
+        pass
+    elif label is 1:
+#        fileBadImages = open('../data/FaceForensics_selfreenactment_images/{0}-BadImagesAltered.txt'.format(time), 'w+')
+        pass
+    else:
+        print('Error: label should be 0 or 1')
+        return
+
+    xy = pool.starmap(directorySearchParallelHelper, 
+                        zip(itertools.repeat(directory),
+                            os.listdir(directory),
+                            itertools.repeat(label)))
+    pool.close()
+    pool.join()
+    x, y = zip(*xy)
+    print('Ended directory search of {} at {}'.format(dataName, str(datetime.datetime.now())))
     return x, y
 
 def verifyLength(list1, list2, list1Name, list2Name):
@@ -78,26 +115,26 @@ def verifyLength(list1, list2, list1Name, list2Name):
 def readImages(pathData):
     # get test data
     pathTestOriginal = '{}test/original/'.format(pathData)
-    x_TestOriginal, y_TestOriginal = directorySearch(pathTestOriginal, 0)
+    x_TestOriginal, y_TestOriginal = directorySearchParallel(pathTestOriginal, 0, 'Test Original')
     verifyLength(x_TestOriginal, y_TestOriginal, 'x_TestOriginal', 'y_TestOriginal')
     pathTestAltered = '{}test/altered/'.format(pathData)
-    x_TestAltered, y_TestAltered = directorySearch(pathTestAltered, 1)
+    x_TestAltered, y_TestAltered = directorySearchParallel(pathTestAltered, 1, 'Test Altered')
     verifyLength(x_TestAltered, y_TestAltered, 'x_TestAltered', 'y_TestAltered')
 
     # get train data
     pathTrainOriginal = '{}train/original/'.format(pathData)
-    x_TrainOriginal, y_TrainOriginal = directorySearch(pathTrainOriginal, 0)
+    x_TrainOriginal, y_TrainOriginal = directorySearchParallel(pathTrainOriginal, 0, 'Train Original')
     verifyLength(x_TrainOriginal, y_TrainOriginal, 'x_TrainOriginal', 'y_TrainOriginal')
     pathTrainAltered = '{}train/altered/'.format(pathData)
-    x_TrainAltered, y_TrainAltered = directorySearch(pathTrainAltered, 1)
+    x_TrainAltered, y_TrainAltered = directorySearchParallel(pathTrainAltered, 1, 'Train Altered')
     verifyLength(x_TrainAltered, y_TrainAltered, 'x_TrainAltered', 'y_TrainAltered')
 
     # get val data
     pathValOriginal = '{}val/original/'.format(pathData)
-    x_ValOriginal, y_ValOriginal = directorySearch(pathValOriginal, 0)
+    x_ValOriginal, y_ValOriginal = directorySearchParallel(pathValOriginal, 0, 'Val Original')
     verifyLength(x_ValOriginal, y_ValOriginal, 'x_ValOriginal', 'y_ValOriginal')
     pathValAltered = '{}val/altered/'.format(pathData)
-    x_ValAltered, y_ValAltered = directorySearch(pathValAltered, 1)
+    x_ValAltered, y_ValAltered = directorySearchParallel(pathValAltered, 1, 'Val Altered')
     verifyLength(x_ValAltered, y_ValAltered, 'x_ValAltered', 'y_ValAltered')
 
     # setup testing data
@@ -185,7 +222,7 @@ def main():
 								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('loss',0.0001,2)
     callbacks_list = [checkpoint, earlyStop]
-    model.fit(x=train_x, y=train_y, batch_size=16, epochs=50, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=512, epochs=50, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
