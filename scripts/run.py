@@ -56,7 +56,7 @@ def directorySearch(directory, label, dataName):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
-    for file in tqdm(os.listdir(directory)[0:2000]):
+    for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
@@ -115,26 +115,26 @@ def verifyLength(list1, list2, list1Name, list2Name):
 def readImages(pathData):
     # get test data
     pathTestOriginal = '{}test/original/'.format(pathData)
-    x_TestOriginal, y_TestOriginal = directorySearchParallel(pathTestOriginal, 0, 'Test Original')
+    x_TestOriginal, y_TestOriginal = directorySearch(pathTestOriginal, 0, 'Test Original')
     verifyLength(x_TestOriginal, y_TestOriginal, 'x_TestOriginal', 'y_TestOriginal')
     pathTestAltered = '{}test/altered/'.format(pathData)
-    x_TestAltered, y_TestAltered = directorySearchParallel(pathTestAltered, 1, 'Test Altered')
+    x_TestAltered, y_TestAltered = directorySearch(pathTestAltered, 1, 'Test Altered')
     verifyLength(x_TestAltered, y_TestAltered, 'x_TestAltered', 'y_TestAltered')
 
     # get train data
     pathTrainOriginal = '{}train/original/'.format(pathData)
-    x_TrainOriginal, y_TrainOriginal = directorySearchParallel(pathTrainOriginal, 0, 'Train Original')
+    x_TrainOriginal, y_TrainOriginal = directorySearch(pathTrainOriginal, 0, 'Train Original')
     verifyLength(x_TrainOriginal, y_TrainOriginal, 'x_TrainOriginal', 'y_TrainOriginal')
     pathTrainAltered = '{}train/altered/'.format(pathData)
-    x_TrainAltered, y_TrainAltered = directorySearchParallel(pathTrainAltered, 1, 'Train Altered')
+    x_TrainAltered, y_TrainAltered = directorySearch(pathTrainAltered, 1, 'Train Altered')
     verifyLength(x_TrainAltered, y_TrainAltered, 'x_TrainAltered', 'y_TrainAltered')
 
     # get val data
     pathValOriginal = '{}val/original/'.format(pathData)
-    x_ValOriginal, y_ValOriginal = directorySearchParallel(pathValOriginal, 0, 'Val Original')
+    x_ValOriginal, y_ValOriginal = directorySearch(pathValOriginal, 0, 'Val Original')
     verifyLength(x_ValOriginal, y_ValOriginal, 'x_ValOriginal', 'y_ValOriginal')
     pathValAltered = '{}val/altered/'.format(pathData)
-    x_ValAltered, y_ValAltered = directorySearchParallel(pathValAltered, 1, 'Val Altered')
+    x_ValAltered, y_ValAltered = directorySearch(pathValAltered, 1, 'Val Altered')
     verifyLength(x_ValAltered, y_ValAltered, 'x_ValAltered', 'y_ValAltered')
 
     # setup testing data
