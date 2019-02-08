@@ -174,6 +174,15 @@ def buildModel(pathBase):
     # max pooling
     model.add(keras.layers.MaxPooling2D())
     
+    # 2 layers of convolution
+    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    
+    # max pooling
+    model.add(keras.layers.MaxPooling2D())
+    
     # flatten
     model.add(keras.layers.Flatten())
     
