@@ -190,7 +190,7 @@ def buildModel(pathBase):
     model = multi_gpu_model(model, gpus=16)
     
     # resume from checkpoint
-    savedModelFiles = find_files(pathBase, '*.hdf5')
+    savedModelFiles = find_files(pathBase, '2019-02-07--*.hdf5')
     if len(savedModelFiles) > 0:
         if len(savedModelFiles) > 1:
             print('Error: There are multiple saved model files.')
