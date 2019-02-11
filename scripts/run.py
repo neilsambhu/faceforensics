@@ -56,7 +56,7 @@ def directorySearch(directory, label, dataName):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
-    for file in tqdm(os.listdir(directory)):
+    for file in tqdm(os.listdir(directory)[0:1000]):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
@@ -166,18 +166,18 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(128,128,3)))
+    model.add(keras.layers.Conv2D(8, 3, activation='relu', input_shape=(128,128,3)))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
+    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
     # max pooling
     model.add(keras.layers.MaxPooling2D())
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
+    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(4 , 3, activation='relu'))
+    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
     # max pooling
@@ -190,7 +190,7 @@ def buildModel(pathBase):
     model.add(keras.layers.Dense(100, activation='relu'))
     
     # dropout
-    model.add(keras.layers.Dropout(0.5))
+    model.add(keras.layers.Dropout(0.1))
     
     # final dense layer
     model.add(keras.layers.Dense(1, activation='sigmoid'))
