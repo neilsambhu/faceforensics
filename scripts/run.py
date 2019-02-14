@@ -56,7 +56,7 @@ def directorySearch(directory, label, dataName):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
-    for file in tqdm(os.listdir(directory)[0:1000]):
+    for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
@@ -209,7 +209,7 @@ def buildModel(pathBase):
         model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
     
     return model
 
