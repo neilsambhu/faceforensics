@@ -17,7 +17,6 @@ from tqdm import tqdm
 import fnmatch
 from time import gmtime, strftime
 from multiprocessing.dummy import Pool as ThreadPool
-from multiprocessing import Process
 import itertools
 
 #def convertPngToNpy():
@@ -56,6 +55,7 @@ def directorySearch(directory, label, dataName):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
+    #for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:7500]):
     for file in tqdm(os.listdir(directory)):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
@@ -152,6 +152,11 @@ def readImages(pathData):
     val_y = np.asarray(y_ValOriginal + y_ValAltered)
     val_x, val_y = sklearn.utils.shuffle(val_x, val_y)
     
+    # normalize x data
+    test_x = test_x.astype('float32')/255.0
+    train_x = train_x.astype('float32')/255.0
+    val_x = val_x.astype('float32')/255.0
+    
     return test_x, test_y, train_x, train_y, val_x, val_y
 
 def find_files(base, pattern):
@@ -166,20 +171,35 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(8, 3, activation='relu', input_shape=(128,128,3)))
+    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(128,128,3)))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
+    # dropout
+    model.add(keras.layers.Dropout(0.99))
+    model.add(keras.layers.Conv2D(64, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
+    # dropout
+#    model.add(keras.layers.Dropout(0.25))
     
     # max pooling
     model.add(keras.layers.MaxPooling2D())
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(8, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     
+    # max pooling
+    model.add(keras.layers.MaxPooling2D())
+    
+    # 3 layers of convolution
+    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+
     # max pooling
     model.add(keras.layers.MaxPooling2D())
     
@@ -187,10 +207,10 @@ def buildModel(pathBase):
     model.add(keras.layers.Flatten())
     
     # fully connected layer
-    model.add(keras.layers.Dense(100, activation='relu'))
+#    model.add(keras.layers.Dense(10, activation='relu'))
     
     # dropout
-    model.add(keras.layers.Dropout(0.1))
+#    model.add(keras.layers.Dropout(0.5))
     
     # final dense layer
     model.add(keras.layers.Dense(1, activation='sigmoid'))
@@ -209,17 +229,38 @@ def buildModel(pathBase):
         model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.00001), loss=keras.losses.binary_crossentropy, metrics=['acc'])
     
     return model
 
+def sendEmail():
+    import yagmail
+    
+    receiver = "nsambhu@mail.usf.edu"
+    
+    yag = yagmail.SMTP("neilmsambhu@gmail.com")
+    yag.send(
+        to=receiver,
+        subject="AWS CNN Finished"
+    )
+    yagmail.SMTP('neilmsambhu@gmail.com', 'NeilSambhu123').send('nsambhu@mail.usf.edu', 'test')
+    
 def main():
     pathBase = '../data/FaceForensics_selfreenactment_images/'
     
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
     print('Image reading finished at {}'.format(str(datetime.datetime.now())))
-    
+
+#    print('Class balance started at {}'.format(str(datetime.datetime.now())))
+#    unique, counts = np.unique(test_y, return_counts=True)
+#    print('test_y: {}'.format(dict(zip(unique, counts))))
+#    unique, counts = np.unique(train_y, return_counts=True)
+#    print('train_y: {}'.format(dict(zip(unique, counts))))
+#    unique, counts = np.unique(val_y, return_counts=True)
+#    print('val_y: {}'.format(dict(zip(unique, counts))))
+#    print('Class balance finished at {}'.format(str(datetime.datetime.now())))
+
     print('Model building started at {}'.format(str(datetime.datetime.now())))
     model = buildModel(pathBase)
     print('Model building finished at {}'.format(str(datetime.datetime.now())))
@@ -228,10 +269,10 @@ def main():
     # fit model to data
     time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     checkpoint = ModelCheckpoint('{0}{1}_{{epoch:02d}}-{{val_acc:.2f}}.hdf5'.format(pathBase, time), 
-								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-    earlyStop = EarlyStopping('loss',0.0001,2)
+								 monitor='val_loss', verbose=1, save_best_only=True, mode='max')
+    earlyStop = EarlyStopping('val_loss',0.001,2)
     callbacks_list = [checkpoint, earlyStop]
-    model.fit(x=train_x, y=train_y, batch_size=512, epochs=50, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
