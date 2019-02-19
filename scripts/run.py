@@ -11,6 +11,7 @@ import keras
 from keras.utils import multi_gpu_model
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import EarlyStopping
+from keras import regularizers
 import sklearn
 import datetime
 from tqdm import tqdm
@@ -55,8 +56,8 @@ def directorySearch(directory, label, dataName):
         print('Error: label should be 0 or 1')
         return
     countBadImages = 0
-    #for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:7500]):
-    for file in tqdm(os.listdir(directory)):
+#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10]):
+    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
             img = cv2.imread(path)
@@ -140,17 +141,17 @@ def readImages(pathData):
     # setup testing data
     test_x = np.asarray(x_TestOriginal + x_TestAltered)
     test_y = np.asarray(y_TestOriginal + y_TestAltered)
-    test_x, test_y = sklearn.utils.shuffle(test_x, test_y)
+#    test_x, test_y = sklearn.utils.shuffle(test_x, test_y)
     
     # setup training data
     train_x = np.asarray(x_TrainOriginal + x_TrainAltered)
     train_y = np.asarray(y_TrainOriginal + y_TrainAltered)
-    train_x, train_y = sklearn.utils.shuffle(train_x, train_y)
+#    train_x, train_y = sklearn.utils.shuffle(train_x, train_y)
 
     # setup validation data
     val_x = np.asarray(x_ValOriginal + x_ValAltered)
     val_y = np.asarray(y_ValOriginal + y_ValAltered)
-    val_x, val_y = sklearn.utils.shuffle(val_x, val_y)
+#    val_x, val_y = sklearn.utils.shuffle(val_x, val_y)
     
     # normalize x data
     test_x = test_x.astype('float32')/255.0
@@ -174,7 +175,7 @@ def buildModel(pathBase):
     model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(128,128,3)))
     model.add(keras.layers.BatchNormalization())
     # dropout
-    model.add(keras.layers.Dropout(0.99))
+#    model.add(keras.layers.Dropout(0.50))
     model.add(keras.layers.Conv2D(64, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
     # dropout
@@ -213,7 +214,7 @@ def buildModel(pathBase):
 #    model.add(keras.layers.Dropout(0.5))
     
     # final dense layer
-    model.add(keras.layers.Dense(1, activation='sigmoid'))
+    model.add(keras.layers.Dense(1, activation='sigmoid', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01)))
     
     # multiple GPUs
     model = multi_gpu_model(model, gpus=16)
@@ -233,17 +234,17 @@ def buildModel(pathBase):
     
     return model
 
-def sendEmail():
-    import yagmail
-    
-    receiver = "nsambhu@mail.usf.edu"
-    
-    yag = yagmail.SMTP("neilmsambhu@gmail.com")
-    yag.send(
-        to=receiver,
-        subject="AWS CNN Finished"
-    )
-    yagmail.SMTP('neilmsambhu@gmail.com', 'NeilSambhu123').send('nsambhu@mail.usf.edu', 'test')
+#def sendEmail():
+#    import yagmail
+#    
+#    receiver = "nsambhu@mail.usf.edu"
+#    
+#    yag = yagmail.SMTP("neilmsambhu@gmail.com")
+#    yag.send(
+#        to=receiver,
+#        subject="AWS CNN Finished"
+#    )
+#    yagmail.SMTP('neilmsambhu@gmail.com', 'NeilSambhu123').send('nsambhu@mail.usf.edu', 'test')
     
 def main():
     pathBase = '../data/FaceForensics_selfreenactment_images/'
@@ -272,7 +273,7 @@ def main():
 								 monitor='val_loss', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_loss',0.001,2)
     callbacks_list = [checkpoint, earlyStop]
-    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=1, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
