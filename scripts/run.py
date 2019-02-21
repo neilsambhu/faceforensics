@@ -214,7 +214,7 @@ def buildModel(pathBase):
 #    model.add(keras.layers.Dropout(0.5))
     
     # final dense layer
-    model.add(keras.layers.Dense(1, activation='sigmoid', kernel_regularizer=regularizers.l2(0.1), activity_regularizer=regularizers.l1(0.1)))
+    model.add(keras.layers.Dense(1, activation='sigmoid', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01)))
     
     # multiple GPUs
     model = multi_gpu_model(model, gpus=16)
@@ -270,10 +270,10 @@ def main():
     # fit model to data
     time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     checkpoint = ModelCheckpoint('{0}{1}_{{epoch:02d}}-{{val_acc:.2f}}.hdf5'.format(pathBase, time), 
-								 monitor='val_loss', verbose=2, save_best_only=True, mode='max')
+								 monitor='val_loss', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_loss',0.001,2)
     callbacks_list = [checkpoint, earlyStop]
-    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=1, 
+    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
