@@ -214,7 +214,9 @@ def buildModel(pathBase):
 #    model.add(keras.layers.Dropout(0.5))
     
     # final dense layer
-    model.add(keras.layers.Dense(1, activation='sigmoid', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l1(0.01)))
+    model.add(keras.layers.Dense(1, activation='sigmoid', 
+                                 kernel_regularizer=regularizers.l2(0.05), 
+                                 activity_regularizer=regularizers.l1(0.05)))
     
     # multiple GPUs
     model = multi_gpu_model(model, gpus=16)
