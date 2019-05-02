@@ -23,6 +23,7 @@ from time import gmtime, strftime
 from multiprocessing.dummy import Pool as ThreadPool
 import itertools
 
+imgSize = 128
 #def convertPngToNpy():
 #    sourceDirs = ['../data/FaceForensics_selfreenactment_images/test/altered/', 
 #                  '../data/FaceForensics_selfreenactment_images/test/original/']
@@ -61,6 +62,7 @@ def directorySearch(directory, label, dataName, numVideos=1):
         return
     countBadImages = 0
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10*numVideos]):
+    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:100]):
     for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
@@ -70,11 +72,11 @@ def directorySearch(directory, label, dataName, numVideos=1):
                 countBadImages += 1
                 pass
             else:
-                x.append(cv2.resize(img,(128,128)))
+                x.append(cv2.resize(img,(imgSize,imgSize)))
                 y.append(label)
-#                x = np.concatenate(x, cv2.resize(img,(128,128)))
+#                x = np.concatenate(x, cv2.resize(img,(imgSize,imgSize)))
 #                y = np.concatenate(y, label)
-#                x += cv2.resize(img,(128,128))
+#                x += cv2.resize(img,(imgSize,imgSize))
 #                y += label
 
     if countBadImages > 0:
@@ -87,7 +89,7 @@ def directorySearchParallelHelper(directory, file, label):
         path = os.path.join(directory, file)
         img = cv2.imread(path)
         if img is not None:
-            return cv2.resize(img,(128,128)), label
+            return cv2.resize(img,(imgSize,imgSize)), label
         else:
             print('Error: image {} is None'.format(path))
             return None, None
@@ -197,7 +199,7 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(128,128,3)))
+    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
     # dropout
 #    model.add(keras.layers.Dropout(0.50))
@@ -245,7 +247,7 @@ def buildModel(pathBase):
 #                                 activity_regularizer=regularizers.l1(0.025)
                                  ))
     
-#    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(128, 128, 3))
+#    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(imgSize, imgSize, 3))
 #    for layer in model.layers[:36]:
 #        layer.trainable=False
 #    x = model.output
@@ -255,7 +257,7 @@ def buildModel(pathBase):
 #    model = Model(inputs = model.input, outputs = predictions)
 #    model.summary()
     # multiple GPUs
-    model = multi_gpu_model(model, gpus=16)
+    # model = multi_gpu_model(model, gpus=16)
     
 #    # resume from checkpoint
 #    savedModelFiles = find_files(pathBase, '2019-02-07--*.hdf5')
@@ -289,9 +291,29 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    
+    initialFileRead = True
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
-    test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
+    test_x = None
+    test_y = None
+    train_x = None
+    train_y = None
+    val_x = None
+    val_y = None
+    if initialFileRead:
+        test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
+        np.save('test_x_{}'.format(imgSize), test_x)
+        np.save('test_y_{}'.format(imgSize), test_y)
+        np.save('train_x_{}'.format(imgSize), train_x)
+        np.save('train_y_{}'.format(imgSize), train_y)
+        np.save('val_x_{}'.format(imgSize), val_x)
+        np.save('val_y_{}'.format(imgSize), val_y)
+    else:
+        test_x = np.load('test_x_{}'.format(imgSize))
+        test_y = np.load('test_y_{}'.format(imgSize))
+        train_x = np.load('train_x_{}'.format(imgSize))
+        train_y = np.load('train_y_{}'.format(imgSize))
+        val_x = np.load('val_x_{}'.format(imgSize))
+        val_y = np.load('val_y_{}'.format(imgSize))
     print('Image reading finished at {}'.format(str(datetime.datetime.now())))
 
     print('Class balance started at {}'.format(str(datetime.datetime.now())))
