@@ -62,7 +62,7 @@ def directorySearch(directory, label, dataName, numVideos=1):
         return
     countBadImages = 0
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10*numVideos]):
-    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:100]):
+#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:100]):
     for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
