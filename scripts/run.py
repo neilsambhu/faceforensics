@@ -271,7 +271,7 @@ def buildModel(pathBase):
 #        model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.00001), 
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.000001), 
                   loss=keras.losses.binary_crossentropy, 
 #                  loss=keras.losses.sparse_categorical_crossentropy, 
                   metrics=['acc'])
