@@ -22,6 +22,7 @@ import fnmatch
 from time import gmtime, strftime
 from multiprocessing.dummy import Pool as ThreadPool
 import itertools
+import sys
 
 imgSize = 128
 #def convertPngToNpy():
@@ -62,7 +63,7 @@ def directorySearch(directory, label, dataName, numVideos=1):
         return
     countBadImages = 0
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10*numVideos]):
-#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:100]):
+#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10]):
     for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
@@ -199,47 +200,47 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(64, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    model.add(keras.layers.Conv2D(1, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
-    # dropout
-#    model.add(keras.layers.Dropout(0.50))
-    model.add(keras.layers.Conv2D(64, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    # dropout
-#    model.add(keras.layers.Dropout(0.25))
-    
-    # max pooling
-    model.add(keras.layers.MaxPooling2D())
-    
-    # 2 layers of convolution
-    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    
-    # max pooling
-    model.add(keras.layers.MaxPooling2D())
-    
-    # 3 layers of convolution
-    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
+#    # dropout
+##    model.add(keras.layers.Dropout(0.50))
+#    model.add(keras.layers.Conv2D(64, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
+#    # dropout
+##    model.add(keras.layers.Dropout(0.25))
+#    
+#    # max pooling
+#    model.add(keras.layers.MaxPooling2D())
+#    
+#    # 2 layers of convolution
+#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
+#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
+#    
+#    # max pooling
+#    model.add(keras.layers.MaxPooling2D())
+#    
+#    # 3 layers of convolution
+#    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
+#    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
+#    model.add(keras.layers.Conv2D(256, 3, activation='relu'))
+#    model.add(keras.layers.BatchNormalization())
 
     # max pooling
-    model.add(keras.layers.MaxPooling2D())
+#    model.add(keras.layers.MaxPooling2D())
     
     # flatten
     model.add(keras.layers.Flatten())
     
     # fully connected layer
-    model.add(keras.layers.Dense(1024, activation='relu'))
-    model.add(keras.layers.Dense(1024, activation='relu'))
+#    model.add(keras.layers.Dense(1024, activation='relu'))
+#    model.add(keras.layers.Dense(1024, activation='relu'))
     
     # dropout
-    model.add(keras.layers.Dropout(0.9))
+#    model.add(keras.layers.Dropout(0.9))
     
     # final dense layer
     model.add(keras.layers.Dense(1, activation='sigmoid', 
@@ -257,7 +258,7 @@ def buildModel(pathBase):
 #    model = Model(inputs = model.input, outputs = predictions)
 #    model.summary()
     # multiple GPUs
-    # model = multi_gpu_model(model, gpus=16)
+    model = multi_gpu_model(model, gpus=16)
     
 #    # resume from checkpoint
 #    savedModelFiles = find_files(pathBase, '2019-02-07--*.hdf5')
@@ -270,7 +271,7 @@ def buildModel(pathBase):
 #        model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), 
+    model.compile(optimizer=keras.optimizers.Adam(lr=0.00001), 
                   loss=keras.losses.binary_crossentropy, 
 #                  loss=keras.losses.sparse_categorical_crossentropy, 
                   metrics=['acc'])
@@ -291,7 +292,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = True
+    initialFileRead = False
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
@@ -308,14 +309,15 @@ if __name__ == "__main__":
         np.save('{}val_x_{}'.format(pathBase, imgSize), val_x)
         np.save('{}val_y_{}'.format(pathBase, imgSize), val_y)
     else:
-        test_x = np.load('{}test_x_{}'.format(pathBase, imgSize))
-        test_y = np.load('{}test_y_{}'.format(pathBase, imgSize))
-        train_x = np.load('{}train_x_{}'.format(pathBase, imgSize))
-        train_y = np.load('{}train_y_{}'.format(pathBase, imgSize))
-        val_x = np.load('{}val_x_{}'.format(pathBase, imgSize))
-        val_y = np.load('{}val_y_{}'.format(pathBase, imgSize))
+        test_x = np.load('{}test_x_{}.npy'.format(pathBase, imgSize))
+        test_y = np.load('{}test_y_{}.npy'.format(pathBase, imgSize))
+        train_x = np.load('{}train_x_{}.npy'.format(pathBase, imgSize))
+        train_y = np.load('{}train_y_{}.npy'.format(pathBase, imgSize))
+        val_x = np.load('{}val_x_{}.npy'.format(pathBase, imgSize))
+        val_y = np.load('{}val_y_{}.npy'.format(pathBase, imgSize))
     print('Image reading finished at {}'.format(str(datetime.datetime.now())))
-
+#    os.system('shutdown -s')
+    
     print('Class balance started at {}'.format(str(datetime.datetime.now())))
     unique, counts = np.unique(test_y, return_counts=True)
     print('test_y: {}'.format(dict(zip(unique, counts))))
