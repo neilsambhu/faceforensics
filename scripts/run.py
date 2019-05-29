@@ -200,12 +200,12 @@ def buildModel(pathBase):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
-    model.add(keras.layers.Conv2D(1, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    model.add(keras.layers.Conv2D(128, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
-#    model.add(keras.layers.Conv2D(64, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.25))
 #    
@@ -213,10 +213,12 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
 #    
 #    # 2 layers of convolution
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
 #    
 #    # max pooling
 #    model.add(keras.layers.MaxPooling2D())
@@ -271,7 +273,7 @@ def buildModel(pathBase):
 #        model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
 
     # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.000001), 
+    model.compile(optimizer=keras.optimizers.Adam(lr=1e-8), 
                   loss=keras.losses.binary_crossentropy, 
 #                  loss=keras.losses.sparse_categorical_crossentropy, 
                   metrics=['acc'])
@@ -337,7 +339,7 @@ if __name__ == "__main__":
     time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     checkpoint = ModelCheckpoint('{0}{1}_{{epoch:02d}}-{{val_acc:.2f}}.hdf5'.format(pathBase, time), 
 								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-    earlyStop = EarlyStopping('val_acc',0.01,5)
+    earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
     model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
