@@ -67,7 +67,7 @@ def directorySearch(directory, label, dataName, numVideos=1):
     for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
-            img = cv2.imread(path)
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
             if img is None:
 #                fileBadImages.write(file + '\n')
                 countBadImages += 1
@@ -179,9 +179,9 @@ def readImages(pathData):
 #    val_x, val_y = sklearn.utils.shuffle(val_x, val_y)
     
     # normalize x data
-    test_x = test_x.astype('float32')/255.0
-    train_x = train_x.astype('float32')/255.0
-    val_x = val_x.astype('float32')/255.0
+#    test_x = test_x.astype('float32')/255.0
+#    train_x = train_x.astype('float32')/255.0
+#    val_x = val_x.astype('float32')/255.0
 #    test_x /= 255.0
 #    train_x /= 255.0
 #    val_x /= 255.0
@@ -260,7 +260,7 @@ def buildModel(pathBase):
 #    model = Model(inputs = model.input, outputs = predictions)
 #    model.summary()
     # multiple GPUs
-    model = multi_gpu_model(model, gpus=16)
+#    model = multi_gpu_model(model, gpus=16)
     
 #    # resume from checkpoint
 #    savedModelFiles = find_files(pathBase, '2019-02-07--*.hdf5')
@@ -294,7 +294,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = False
+    initialFileRead = True
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
@@ -305,11 +305,11 @@ if __name__ == "__main__":
     if initialFileRead:
         test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
         np.save('{}test_x_{}'.format(pathBase, imgSize), test_x)
-        np.save('{}test_y_{}'.format(pathBase, imgSize), test_y)
+        np.save('{}test_y_{}'.format(pathBase, imgSize), np.array(test_y, dtype='uint8'))
         np.save('{}train_x_{}'.format(pathBase, imgSize), train_x)
-        np.save('{}train_y_{}'.format(pathBase, imgSize), train_y)
+        np.save('{}train_y_{}'.format(pathBase, imgSize), np.array(train_y, dtype='uint8'))
         np.save('{}val_x_{}'.format(pathBase, imgSize), val_x)
-        np.save('{}val_y_{}'.format(pathBase, imgSize), val_y)
+        np.save('{}val_y_{}'.format(pathBase, imgSize), np.array(val_y, dtype='uint8'))
     else:
         test_x = np.load('{}test_x_{}.npy'.format(pathBase, imgSize))
         test_y = np.load('{}test_y_{}.npy'.format(pathBase, imgSize))
