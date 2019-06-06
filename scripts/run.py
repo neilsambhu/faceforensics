@@ -66,15 +66,17 @@ def directorySearch(directory, label, dataName, numVideos=1):
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10]):
     for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
-            path = os.path.join(directory, file)
-            img = cv2.imread(path, cv2.IMREAD_COLOR)
+#            path = os.path.join(directory, file)
+#            img = cv2.imread(path, cv2.IMREAD_COLOR)
+            img = []
             if img is None:
 #                fileBadImages.write(file + '\n')
                 countBadImages += 1
                 pass
             else:
-                x.append(cv2.resize(img,(imgSize,imgSize)))
-                y.append(label)
+#                x.append(cv2.resize(img,(imgSize,imgSize)))
+                x.append(img)
+                y.append(np.array([label], dtype='uint8'))
 #                x = np.concatenate(x, cv2.resize(img,(imgSize,imgSize)))
 #                y = np.concatenate(y, label)
 #                x += cv2.resize(img,(imgSize,imgSize))
@@ -201,7 +203,7 @@ def buildModel(pathBase):
     
     # 2 layers of convolution
 #    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(1, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    model.add(keras.layers.Conv2D(1024, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
@@ -295,7 +297,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = False
+    initialFileRead = True
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
