@@ -63,20 +63,19 @@ def directorySearch(directory, label, dataName, numVideos=1):
         return
     countBadImages = 0
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10*numVideos]):
-#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10]):
-    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
+    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:1000]):
+#    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
-#            path = os.path.join(directory, file)
-#            img = cv2.imread(path, cv2.IMREAD_COLOR)
-            img = []
+            path = os.path.join(directory, file)
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
             if img is None:
 #                fileBadImages.write(file + '\n')
                 countBadImages += 1
                 pass
             else:
-#                x.append(cv2.resize(img,(imgSize,imgSize)))
-                x.append(img)
+                x.append(cv2.resize(img,(imgSize,imgSize)))
                 y.append(np.array([label], dtype='uint8'))
+#                y.append(label)
 #                x = np.concatenate(x, cv2.resize(img,(imgSize,imgSize)))
 #                y = np.concatenate(y, label)
 #                x += cv2.resize(img,(imgSize,imgSize))
@@ -297,7 +296,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = True
+    initialFileRead = False
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
@@ -307,12 +306,12 @@ if __name__ == "__main__":
     val_y = None
     if initialFileRead:
         test_x, test_y, train_x, train_y, val_x, val_y = readImages(pathBase)
-        np.save('{}test_x_{}'.format(pathBase, imgSize), test_x)
-        np.save('{}test_y_{}'.format(pathBase, imgSize), np.array(test_y, dtype='uint8'))
-        np.save('{}train_x_{}'.format(pathBase, imgSize), train_x)
-        np.save('{}train_y_{}'.format(pathBase, imgSize), np.array(train_y, dtype='uint8'))
-        np.save('{}val_x_{}'.format(pathBase, imgSize), val_x)
-        np.save('{}val_y_{}'.format(pathBase, imgSize), np.array(val_y, dtype='uint8'))
+#        np.save('{}test_x_{}'.format(pathBase, imgSize), test_x)
+#        np.save('{}test_y_{}'.format(pathBase, imgSize), np.array(test_y, dtype='uint8'))
+#        np.save('{}train_x_{}'.format(pathBase, imgSize), train_x)
+#        np.save('{}train_y_{}'.format(pathBase, imgSize), np.array(train_y, dtype='uint8'))
+#        np.save('{}val_x_{}'.format(pathBase, imgSize), val_x)
+#        np.save('{}val_y_{}'.format(pathBase, imgSize), np.array(val_y, dtype='uint8'))
     else:
         test_x = np.load('{}test_x_{}.npy'.format(pathBase, imgSize))
         test_y = np.load('{}test_y_{}.npy'.format(pathBase, imgSize))
@@ -344,7 +343,8 @@ if __name__ == "__main__":
 								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
-    model.fit(x=train_x, y=train_y, batch_size=32, epochs=10, verbose=2, 
+    callbacks_list = []
+    model.fit(x=train_x, y=train_y, batch_size=1, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
