@@ -63,7 +63,7 @@ def directorySearch(directory, label, dataName, numVideos=1):
         return
     countBadImages = 0
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10*numVideos]):
-    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:1000]):
+    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))[0:10]):
 #    for file in tqdm(sklearn.utils.shuffle(os.listdir(directory))):
         if file.endswith('.png'):
             path = os.path.join(directory, file)
@@ -202,12 +202,12 @@ def buildModel(pathBase):
     
     # 2 layers of convolution
 #    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(1024, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    model.add(keras.layers.Conv2D(1, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(1, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.25))
 #    
@@ -296,7 +296,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = False
+    initialFileRead = True
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
@@ -343,8 +343,8 @@ if __name__ == "__main__":
 								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
-    callbacks_list = []
-    model.fit(x=train_x, y=train_y, batch_size=1, epochs=10, verbose=2, 
+#    callbacks_list = []
+    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
