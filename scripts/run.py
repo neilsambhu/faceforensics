@@ -202,11 +202,11 @@ def buildModel(pathBase):
     
     # 2 layers of convolution
 #    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(1, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
-    model.add(keras.layers.Conv2D(1, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.25))
@@ -215,11 +215,11 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
 #    
 #    # 2 layers of convolution
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
-#    model.add(keras.layers.BatchNormalization())
-#    model.add(keras.layers.Conv2D(128, 3, activation='relu'))
+    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    model.add(keras.layers.BatchNormalization())
+#    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
 #    model.add(keras.layers.BatchNormalization())
 #    
 #    # max pooling
@@ -344,7 +344,7 @@ if __name__ == "__main__":
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
 #    callbacks_list = []
-    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=32, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
