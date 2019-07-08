@@ -344,7 +344,7 @@ if __name__ == "__main__":
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
 #    callbacks_list = []
-    model.fit(x=train_x, y=train_y, batch_size=32, epochs=10, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=128, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
