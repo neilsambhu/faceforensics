@@ -24,6 +24,10 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
 		for frameNumber in range(0, framesCount):
 			fileNamePNG = '{}_{}_{}_{}_{}.png'.format(dirVideoName, JSON_VideoSequenceNumber, dirVideoName, JSON_VideoSequenceNumber, frameNumber)
 			pathPNGs.write(fileNamePNG+'\n')
+			# TODO
+			fullFileNamePNG = None
+			if not os.path.exists(fullFileNamePNG):
+				print('{} does not exist'.format(fullFileNamePNG))
 
 def JSON_ParserVideo(dirBase, dirVideoName):
 	dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
