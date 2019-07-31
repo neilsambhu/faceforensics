@@ -6,6 +6,7 @@ import sys
 import glob
 
 pathPNGs = open(r'pathPNGs.txt', 'w')
+errorMessages = open(r'errorMessages.txt', 'w')
 
 def VerifyDir(dir):
     if not os.path.exists(dir):
@@ -29,10 +30,10 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                                  'FaceForensics_selfreenactment_images', '*', 
                                  '*', fileNamePNG))
             if len(fullFileNamePNGs) is not 2:
-                print('Length of {} files is {}. Contents: {}'.format(fileNamePNG, 
+                errorMessages.write('Length of {} files is {}. Contents: {}\n'.format(fileNamePNG, 
                       len(fullFileNamePNGs), fullFileNamePNGs))
             if frameNumber is framesCount and len(fullFileNamePNGs) is 2:
-                print('{} goes beyond framesCount ({}) bounds'.format(fileNamePNG, 
+                 errorMessages.write('{} goes beyond framesCount ({}) bounds\n'.format(fileNamePNG, 
                       framesCount))
 #            if len(fullFileNamePNGs) is 0:
 #                print('{} does not exist'.format(fileNamePNG))
@@ -56,3 +57,4 @@ def JSON_Parser(dirBase='Face2Face_video_information'):
 
 if __name__ == "__main__":
     JSON_Parser()
+    os.system('shutdown -s')
