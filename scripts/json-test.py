@@ -21,13 +21,15 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
 		firstFrame = data['first frame']
 		lastFrame = data['last frame']
 		framesCount = lastFrame - firstFrame
-		for frameNumber in range(0, framesCount):
+		for frameNumber in range(0, framesCount+1):
 			fileNamePNG = '{}_{}_{}_{}_{}.png'.format(dirVideoName, JSON_VideoSequenceNumber, dirVideoName, JSON_VideoSequenceNumber, frameNumber)
 			pathPNGs.write(fileNamePNG+'\n')
 			# TODO
-			fullFileNamePNG = None
-			if not os.path.exists(fullFileNamePNG):
-				print('{} does not exist'.format(fullFileNamePNG))
+			fullFileNamePNGs = glob.glob(os.path.join('..', 'data', 'FaceForensics_selfreenactment_images', '*', '*', fileNamePNG))
+			if frameNumber is framesCount and os.path.exists(fullFileNamePNGs):
+				print('{} goes beyond framesCount ({}) bounds'.format(fullFileNamePNGs, framesCount))
+			if not os.path.exists(fullFileNamePNGs):
+				print('{} does not exist'.format(fullFileNamePNGs))
 
 def JSON_ParserVideo(dirBase, dirVideoName):
 	dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
