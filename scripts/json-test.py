@@ -4,16 +4,18 @@ import datetime
 import os
 import sys
 import glob
+import keras
+from keras.models import load_model
+import cv2
+import numpy as np
 
 pathPNGs = open(r'pathPNGs.txt', 'w')
 errorMessages = open(r'errorMessages.txt', 'w')
 outputFile = open(r'outputFile.txt', 'w')
 model = load_model('../data/FaceForensics_selfreenactment_images/2019-06-29--04-48-44_03-0.99.hdf5')
+imgSize = 128
 test_y_all_groundTruth = []
 test_y_all_pred = []
-
-def LoadModel(pathModel):
-    model = Sequential()
 
 def VerifyDir(dir):
     if not os.path.exists(dir):
@@ -28,10 +30,8 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
         lastFrame = data['last frame']
         framesCount = lastFrame - firstFrame
 
-        test_y_original_groundTruth = []
-        test_y_original_pred = []
-        test_y_altered_groundTruth = []
         test_y_altered_pred = []
+        test_y_original_pred = []
 
         for frameNumber in range(0, framesCount):
             fileNamePNG = '{}_{}_{}_{}_{}.png'.format(dirVideoName, 
@@ -43,9 +43,16 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                                  'FaceForensics_selfreenactment_images', 
                                  'test', 
                                  '*', fileNamePNG))
-           if len(fullFileNamePNGs) is 2:
+            if len(fullFileNamePNGs) is 2:
                # ready to check model against 2 complementary images
-               print(fullFileNamePNGs)
+               # process altered
+               pathImgAltered = fullFileNamePNGs[0]
+               test_y_altered_pred.append(np.round(model.predict(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))))
+               # process original
+               pathImgOriginal = fullFileNamePNGs[1]
+               test_y_original_pred.append(np.round(model.predict(cv2.resize(cv2.imread(pathImgOriginal, cv2.IMREAD_COLOR),(imgSize,imgSize)))))
+               print('done')
+           
 
             # if len(fullFileNamePNGs) is not 2:
             #     errorMessages.write('Length of {} files is {}. Contents: {}\n'.format(fileNamePNG, 
