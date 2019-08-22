@@ -8,6 +8,8 @@ import keras
 from keras.models import load_model
 import cv2
 import numpy as np
+from statistics import mode
+from sklearn.metrics import confusion_matrix
 
 pathPNGs = open(r'pathPNGs.txt', 'w')
 errorMessages = open(r'errorMessages.txt', 'w')
@@ -30,6 +32,8 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
         lastFrame = data['last frame']
         framesCount = lastFrame - firstFrame
 
+        test_x_altered = []
+        test_x_original = []
         test_y_altered_pred = []
         test_y_original_pred = []
 
@@ -37,7 +41,7 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
             fileNamePNG = '{}_{}_{}_{}_{}.png'.format(dirVideoName, 
                            JSON_VideoSequenceNumber, dirVideoName, 
                            JSON_VideoSequenceNumber, frameNumber)
-#            pathPNGs.write(fileNamePNG+'\n')
+            # pathPNGs.write(fileNamePNG+'\n')
             fullFileNamePNGs = glob.glob(
                     os.path.join('..', 'data', 
                                  'FaceForensics_selfreenactment_images', 
@@ -47,19 +51,20 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                # ready to check model against 2 complementary images
                # process altered
                pathImgAltered = fullFileNamePNGs[0]
-               test_y_altered_pred.append(np.round(model.predict(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))))
+               test_x_altered.append(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))
                # process original
                pathImgOriginal = fullFileNamePNGs[1]
-               test_y_original_pred.append(np.round(model.predict(cv2.resize(cv2.imread(pathImgOriginal, cv2.IMREAD_COLOR),(imgSize,imgSize)))))
-               print('done')
-           
-
-            # if len(fullFileNamePNGs) is not 2:
-            #     errorMessages.write('Length of {} files is {}. Contents: {}\n'.format(fileNamePNG, 
-            #           len(fullFileNamePNGs), fullFileNamePNGs))
-            # if frameNumber is framesCount and len(fullFileNamePNGs) is 2:
-            #      errorMessages.write('{} goes beyond framesCount ({}) bounds\n'.format(fileNamePNG, 
-            #           framesCount))
+               test_x_original.append(cv2.resize(cv2.imread(pathImgOriginal, cv2.IMREAD_COLOR),(imgSize,imgSize)))
+        if len(test_x_altered) > 0:
+            # establish ground truth
+            test_y_all_groundTruth.append(1)
+            test_y_all_groundTruth.append(0)
+            # get predictions from model
+            test_y_altered_pred.append(np.round(model.predict(test_x_altered)))
+            test_y_original_pred.append(np.round(model.predict(test_x_original)))
+            # majority voting on video
+            test_y_all_pred.append(mode(test_y_altered_pred))
+            test_y_all_pred.append(mode(test_y_original_pred))
 
 def JSON_ParserVideo(dirBase, dirVideoName):
     dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
@@ -77,6 +82,7 @@ def JSON_Parser(dirBase='Face2Face_video_information'):
     # VerifyDir(dirBase)
     for dirVideoName in tqdm(os.listdir(dirBase)):
         JSON_ParserVideo(dirBase, dirVideoName)
+    print('Confusion matrix:\n{}'.format(confusion_matrix(test_y_all_groundTruth, test_y_all_pred)))
 
 if __name__ == "__main__":
     JSON_Parser()
