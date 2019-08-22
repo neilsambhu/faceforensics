@@ -60,6 +60,8 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
             test_y_all_groundTruth.append(1)
             test_y_all_groundTruth.append(0)
             # get predictions from model
+            print(np.array(test_x_altered).shape)
+            return
             test_y_altered_pred.append(np.round(model.predict(test_x_altered)))
             test_y_original_pred.append(np.round(model.predict(test_x_original)))
             # majority voting on video
