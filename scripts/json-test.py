@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from statistics import mode
 from sklearn.metrics import confusion_matrix
+from scipy import stats
 
 pathPNGs = open(r'pathPNGs.txt', 'w')
 errorMessages = open(r'errorMessages.txt', 'w')
@@ -60,13 +61,11 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
             test_y_all_groundTruth.append(1)
             test_y_all_groundTruth.append(0)
             # get predictions from model
-            print(np.array(test_x_altered).shape)
-            return
-            test_y_altered_pred.append(np.round(model.predict(test_x_altered)))
-            test_y_original_pred.append(np.round(model.predict(test_x_original)))
+            test_y_altered_pred.append(np.round(model.predict(np.asarray(test_x_altered))))
+            test_y_original_pred.append(np.round(model.predict(np.asarray(test_x_original))))
             # majority voting on video
-            test_y_all_pred.append(mode(test_y_altered_pred))
-            test_y_all_pred.append(mode(test_y_original_pred))
+            test_y_all_pred.append(int(stats.mode(test_y_altered_pred, axis=None)[0]))
+            test_y_all_pred.append(int(stats.mode(test_y_original_pred, axis=None)[0]))
 
 def JSON_ParserVideo(dirBase, dirVideoName):
     dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
