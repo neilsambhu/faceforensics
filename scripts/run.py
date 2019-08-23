@@ -275,8 +275,8 @@ def buildModel(pathBase):
 
     # compile
     model.compile(optimizer=keras.optimizers.Adam(lr=0.001), 
-        loss=keras.losses.binary_crossentropy, 
-#       loss=keras.losses.sparse_categorical_crossentropy, 
+        # loss=keras.losses.binary_crossentropy, 
+        loss=keras.losses.sparse_categorical_crossentropy, 
         metrics=['acc'])
     
     return model

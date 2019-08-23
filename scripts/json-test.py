@@ -19,6 +19,7 @@ model = load_model('../data/FaceForensics_selfreenactment_images/2019-06-29--04-
 imgSize = 128
 test_y_all_groundTruth = []
 test_y_all_pred = []
+test_y_fileName = []
 
 def VerifyDir(dir):
     if not os.path.exists(dir):
@@ -50,6 +51,7 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                                  '*', fileNamePNG))
             if len(fullFileNamePNGs) is 2:
                # ready to check model against 2 complementary images
+               test_y_fileName.append()
                # process altered
                pathImgAltered = fullFileNamePNGs[0]
                test_x_altered.append(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))
