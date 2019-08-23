@@ -280,18 +280,6 @@ def buildModel(pathBase):
         metrics=['acc'])
     
     return model
-
-#def sendEmail():
-#    import yagmail
-#    
-#    receiver = "nsambhu@mail.usf.edu"
-#    
-#    yag = yagmail.SMTP("neilmsambhu@gmail.com")
-#    yag.send(
-#        to=receiver,
-#        subject="AWS CNN Finished"
-#    )
-#    yagmail.SMTP('neilmsambhu@gmail.com', 'NeilSambhu123').send('nsambhu@mail.usf.edu', 'test')
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
@@ -343,14 +331,14 @@ if __name__ == "__main__":
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
 #    callbacks_list = []
-    model.fit(x=train_x, y=train_y, batch_size=128, epochs=1, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
     print(model.evaluate(test_x, test_y))
     test_y_prob = model.predict(test_x)
-    test_y_pred = np.round(test_y_prob)
-#    test_y_pred = np.argmax(test_y_prob, axis=-1)
+#    test_y_pred = np.round(test_y_prob)
+    test_y_pred = np.argmax(test_y_prob, axis=-1)
     print('Confusion matrix:\n{}'.format(confusion_matrix(test_y, test_y_pred)))
     print('Model evaluation finished at {}'.format(str(datetime.datetime.now())))
 #    os.system('shutdown -s')

@@ -86,6 +86,8 @@ def JSON_Parser(dirBase='Face2Face_video_information'):
     for dirVideoName in tqdm(os.listdir(dirBase)):
         JSON_ParserVideo(dirBase, dirVideoName)
     print('Confusion matrix:\n{}'.format(confusion_matrix(test_y_all_groundTruth, test_y_all_pred)))
+    # find file paths of incorrect predictions
+    
 
 if __name__ == "__main__":
     JSON_Parser()
