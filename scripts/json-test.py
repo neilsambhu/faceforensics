@@ -51,7 +51,7 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                                  '*', fileNamePNG))
             if len(fullFileNamePNGs) is 2:
                # ready to check model against 2 complementary images
-               test_y_fileName.append()
+               test_y_fileName.append(fullFileNamePNGs)
                # process altered
                pathImgAltered = fullFileNamePNGs[0]
                test_x_altered.append(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))
