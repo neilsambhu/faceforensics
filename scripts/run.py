@@ -196,18 +196,18 @@ def find_files(base, pattern):
 
 def buildModel(pathBase):
     # create model
-    model = keras.models.Sequential()
+    # model = keras.models.Sequential()
 #    with tf.device('/cpu:0'):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
 #    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
-    model.add(keras.layers.BatchNormalization())
+    # model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+    # model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
-    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
+    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    # model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.25))
 #    
@@ -215,10 +215,10 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
 #    
 #    # 2 layers of convolution
-    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
-    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    model.add(keras.layers.BatchNormalization())
+    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    # model.add(keras.layers.BatchNormalization())
+    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+    # model.add(keras.layers.BatchNormalization())
 #    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
 #    model.add(keras.layers.BatchNormalization())
 #    
@@ -237,7 +237,7 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
     
     # flatten
-    model.add(keras.layers.Flatten())
+    # model.add(keras.layers.Flatten())
     
     # fully connected layer
 #    model.add(keras.layers.Dense(1024, activation='relu'))
@@ -247,23 +247,22 @@ def buildModel(pathBase):
 #    model.add(keras.layers.Dropout(0.9))
     
     # final dense layer
-    model.add(keras.layers.Dense(1, activation='sigmoid', 
-#                                 kernel_regularizer=regularizers.l2(0.025), 
-#                                 activity_regularizer=regularizers.l1(0.025)
-                                 ))
-    
-#    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(imgSize, imgSize, 3))
-#    for layer in model.layers[:36]:
-#        layer.trainable=False
-#    x = model.output
-#    x = Flatten()(x)
-#    predictions = Dense(2, activation='softmax')(x)
-##   predictions = Dense(1, activation='sigmoid')(x)
-#    model = Model(inputs = model.input, outputs = predictions)
-#    model.summary()
-    # multiple GPUs
+#     model.add(keras.layers.Dense(1, activation='sigmoid', 
+# #                                 kernel_regularizer=regularizers.l2(0.025), 
+# #                                 activity_regularizer=regularizers.l1(0.025)
+#                                  ))
+
+    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(imgSize, imgSize, 3))
+    for layer in model.layers[:36]:
+       layer.trainable=False
+    x = model.output
+    x = Flatten()(x)
+    predictions = Dense(2, activation='softmax')(x)
+#   predictions = Dense(1, activation='sigmoid')(x)
+    model = Model(inputs = model.input, outputs = predictions)
+   # model.summary()
+# multiple GPUs
 #    model = multi_gpu_model(model, gpus=16)
-    
 #    # resume from checkpoint
 #    savedModelFiles = find_files(pathBase, '2019-02-07--*.hdf5')
 #    if len(savedModelFiles) > 0:
@@ -276,9 +275,9 @@ def buildModel(pathBase):
 
     # compile
     model.compile(optimizer=keras.optimizers.Adam(lr=0.001), 
-                  loss=keras.losses.binary_crossentropy, 
-#                  loss=keras.losses.sparse_categorical_crossentropy, 
-                  metrics=['acc'])
+        loss=keras.losses.binary_crossentropy, 
+#       loss=keras.losses.sparse_categorical_crossentropy, 
+        metrics=['acc'])
     
     return model
 
@@ -296,7 +295,7 @@ def buildModel(pathBase):
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
-    initialFileRead = True
+    initialFileRead = False
     print('Image reading started at {}'.format(str(datetime.datetime.now())))
     test_x = None
     test_y = None
@@ -340,11 +339,11 @@ if __name__ == "__main__":
     # fit model to data
     time = strftime("%Y-%m-%d--%H-%M-%S", gmtime())
     checkpoint = ModelCheckpoint('{0}{1}_{{epoch:02d}}-{{val_acc:.2f}}.hdf5'.format(pathBase, time), 
-								 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+                                 monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
 #    callbacks_list = []
-    model.fit(x=train_x, y=train_y, batch_size=128, epochs=10, verbose=2, 
+    model.fit(x=train_x, y=train_y, batch_size=1024, epochs=1, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
               initial_epoch=0)    
