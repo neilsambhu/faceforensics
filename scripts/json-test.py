@@ -51,7 +51,6 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                                  '*', fileNamePNG))
             if len(fullFileNamePNGs) is 2:
                # ready to check model against 2 complementary images
-               test_y_fileName.append(fullFileNamePNGs)
                # process altered
                pathImgAltered = fullFileNamePNGs[0]
                test_x_altered.append(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))
@@ -59,16 +58,69 @@ def JSON_ParserVideoSequence(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
                pathImgOriginal = fullFileNamePNGs[1]
                test_x_original.append(cv2.resize(cv2.imread(pathImgOriginal, cv2.IMREAD_COLOR),(imgSize,imgSize)))
         if len(test_x_altered) > 0:
+            # store video name
+            test_y_fileName.append(dirVideoName)
+            test_y_fileName.append(dirVideoName)
             # establish ground truth
             test_y_all_groundTruth.append(1)
             test_y_all_groundTruth.append(0)
             # get predictions from model
-            test_y_altered_pred.append(np.round(model.predict(np.asarray(test_x_altered))))
+            a = model.predict(np.asarray(test_x_altered))
+            # for p in a:
+            #     print('{:.2f}'.format(float(p)))
+            test_y_altered_pred.append(np.round(a))
             test_y_original_pred.append(np.round(model.predict(np.asarray(test_x_original))))
             # majority voting on video
             test_y_all_pred.append(int(stats.mode(test_y_altered_pred, axis=None)[0]))
             test_y_all_pred.append(int(stats.mode(test_y_original_pred, axis=None)[0]))
 
+def LSTM_Video(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
+    fullPathJSON = os.path.join(os.getcwd(), pathJSON)
+    with open(fullPathJSON) as JSON_VideoSequenceFile:
+        data = json.load(JSON_VideoSequenceFile)
+        firstFrame = data['first frame']
+        lastFrame = data['last frame']
+        framesCount = lastFrame - firstFrame
+
+        test_x_altered = []
+        test_x_original = []
+        test_y_altered_pred = []
+        test_y_original_pred = []
+
+        for frameNumber in range(0, framesCount):
+            fileNamePNG = '{}_{}_{}_{}_{}.png'.format(dirVideoName, 
+                           JSON_VideoSequenceNumber, dirVideoName, 
+                           JSON_VideoSequenceNumber, frameNumber)
+            fullFileNamePNGs = glob.glob(
+                    os.path.join('..', 'data', 
+                                 'FaceForensics_selfreenactment_images', 
+                                 'test', 
+                                 '*', fileNamePNG))
+            if len(fullFileNamePNGs) is 2:
+               # ready to check model against 2 complementary images
+               # process altered
+               pathImgAltered = fullFileNamePNGs[0]
+               test_x_altered.append(cv2.resize(cv2.imread(pathImgAltered, cv2.IMREAD_COLOR),(imgSize,imgSize)))
+               # process original
+               pathImgOriginal = fullFileNamePNGs[1]
+               test_x_original.append(cv2.resize(cv2.imread(pathImgOriginal, cv2.IMREAD_COLOR),(imgSize,imgSize)))
+        if len(test_x_altered) > 0:
+            # store video name
+            test_y_fileName.append(dirVideoName)
+            test_y_fileName.append(dirVideoName)
+            # establish ground truth
+            test_y_all_groundTruth.append(1)
+            test_y_all_groundTruth.append(0)
+            # get predictions from model
+            a = model.predict(np.asarray(test_x_altered))
+            # for p in a:
+            #     print('{:.2f}'.format(float(p)))
+            test_y_altered_pred.append(np.round(a))
+            test_y_original_pred.append(np.round(model.predict(np.asarray(test_x_original))))
+            # majority voting on video
+            test_y_all_pred.append(int(stats.mode(test_y_altered_pred, axis=None)[0]))
+            test_y_all_pred.append(int(stats.mode(test_y_original_pred, axis=None)[0]))
+    
 def JSON_ParserVideo(dirBase, dirVideoName):
     dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
     # VerifyDir(dirJSON)
@@ -83,11 +135,14 @@ def JSON_ParserVideo(dirBase, dirVideoName):
 
 def JSON_Parser(dirBase='Face2Face_video_information'):
     # VerifyDir(dirBase)
-    for dirVideoName in tqdm(os.listdir(dirBase)):
-        JSON_ParserVideo(dirBase, dirVideoName)
+    # for dirVideoName in tqdm(os.listdir(dirBase)):
+    #     JSON_ParserVideo(dirBase, dirVideoName)
+    JSON_ParserVideo(dirBase, 'Bpa3wwb5Dt8')
     print('Confusion matrix:\n{}'.format(confusion_matrix(test_y_all_groundTruth, test_y_all_pred)))
     # find file paths of incorrect predictions
-    
+    for index, (groundTruth, pred, fileName) in enumerate(zip(test_y_all_groundTruth, test_y_all_pred, test_y_fileName)):
+        if groundTruth != pred:
+            print('Ground truth: {}, Prediction: {}, File name: {}'.format(groundTruth, pred, fileName))
 
 if __name__ == "__main__":
     JSON_Parser()

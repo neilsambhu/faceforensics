@@ -330,7 +330,7 @@ if __name__ == "__main__":
                                  monitor='val_acc', verbose=1, save_best_only=True, mode='max')
     earlyStop = EarlyStopping('val_acc',0.01,1)
     callbacks_list = [checkpoint, earlyStop]
-#    callbacks_list = []
+    callbacks_list = [checkpoint]
     model.fit(x=train_x, y=train_y, batch_size=64, epochs=10, verbose=2, 
               callbacks=callbacks_list,
               validation_data=(val_x, val_y),
