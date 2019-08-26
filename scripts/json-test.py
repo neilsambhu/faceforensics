@@ -82,6 +82,19 @@ def LSTM_Video(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
         lastFrame = data['last frame']
         framesCount = lastFrame - firstFrame
 
+        # train
+        train_x_altered = []
+        train_x_original = []
+        train_y_altered_pred = []
+        train_y_original_pred = []
+
+        # validation
+        val_x_altered = []
+        val_x_original = []
+        valtest_y_altered_pred = []
+        val_y_original_pred = []
+
+        # test
         test_x_altered = []
         test_x_original = []
         test_y_altered_pred = []
@@ -120,7 +133,7 @@ def LSTM_Video(pathJSON, dirVideoName, JSON_VideoSequenceNumber):
             # majority voting on video
             test_y_all_pred.append(int(stats.mode(test_y_altered_pred, axis=None)[0]))
             test_y_all_pred.append(int(stats.mode(test_y_original_pred, axis=None)[0]))
-    
+
 def JSON_ParserVideo(dirBase, dirVideoName):
     dirJSON = os.path.join(dirBase, dirVideoName, 'faces')
     # VerifyDir(dirJSON)
@@ -128,10 +141,10 @@ def JSON_ParserVideo(dirBase, dirVideoName):
     for JSON_VideoSequence in JSON_Files:
         JSON_VideoSequence = os.path.basename(JSON_VideoSequence)
         pathJSON = os.path.join(dirJSON, JSON_VideoSequence)
-        # print('dirJSON {}, JSON_VideoSequence {}'.format(dirJSON, JSON_VideoSequence))
-        # VerifyDir(pathJSON)
-        JSON_ParserVideoSequence(pathJSON, dirVideoName, 
-                                 os.path.splitext(JSON_VideoSequence)[0])
+        # JSON_ParserVideoSequence(pathJSON, dirVideoName, 
+        #                          os.path.splitext(JSON_VideoSequence)[0])
+        LSTM_Video(pathJSON, dirVideoName, os.path.splitext(JSON_VideoSequence)[0])
+
 
 def JSON_Parser(dirBase='Face2Face_video_information'):
     # VerifyDir(dirBase)
