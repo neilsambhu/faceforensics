@@ -196,18 +196,18 @@ def find_files(base, pattern):
 
 def buildModel(pathBase):
     # create model
-    # model = keras.models.Sequential()
+     model = keras.models.Sequential()
 #    with tf.device('/cpu:0'):
 #        model = Xception(weights=None, input_shape=(256, 256, 3), classes=2)
     
     # 2 layers of convolution
 #    model.add(keras.layers.BatchNormalization())
-    # model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
-    # model.add(keras.layers.BatchNormalization())
+     model.add(keras.layers.Conv2D(4, 3, activation='relu', input_shape=(imgSize,imgSize,3)))
+     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.50))
-    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    # model.add(keras.layers.BatchNormalization())
+     model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+     model.add(keras.layers.BatchNormalization())
 #    # dropout
 ##    model.add(keras.layers.Dropout(0.25))
 #    
@@ -215,10 +215,10 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
 #    
 #    # 2 layers of convolution
-    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    # model.add(keras.layers.BatchNormalization())
-    # model.add(keras.layers.Conv2D(4, 3, activation='relu'))
-    # model.add(keras.layers.BatchNormalization())
+     model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+     model.add(keras.layers.BatchNormalization())
+     model.add(keras.layers.Conv2D(4, 3, activation='relu'))
+     model.add(keras.layers.BatchNormalization())
 #    model.add(keras.layers.Conv2D(4, 3, activation='relu'))
 #    model.add(keras.layers.BatchNormalization())
 #    
@@ -237,7 +237,7 @@ def buildModel(pathBase):
 #    model.add(keras.layers.MaxPooling2D())
     
     # flatten
-    # model.add(keras.layers.Flatten())
+     model.add(keras.layers.Flatten())
     
     # fully connected layer
 #    model.add(keras.layers.Dense(1024, activation='relu'))
@@ -247,20 +247,20 @@ def buildModel(pathBase):
 #    model.add(keras.layers.Dropout(0.9))
     
     # final dense layer
-#     model.add(keras.layers.Dense(1, activation='sigmoid', 
-# #                                 kernel_regularizer=regularizers.l2(0.025), 
-# #                                 activity_regularizer=regularizers.l1(0.025)
-#                                  ))
+     model.add(keras.layers.Dense(1, activation='sigmoid', 
+ #                                 kernel_regularizer=regularizers.l2(0.025), 
+ #                                 activity_regularizer=regularizers.l1(0.025)
+                                  ))
 
-    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(imgSize, imgSize, 3))
-    for layer in model.layers[:36]:
-       layer.trainable=False
-    x = model.output
-    x = Flatten()(x)
-    predictions = Dense(2, activation='softmax')(x)
-#   predictions = Dense(1, activation='sigmoid')(x)
-    model = Model(inputs = model.input, outputs = predictions)
-   # model.summary()
+#    model = keras.applications.Xception(weights = "imagenet", include_top=False, input_shape=(imgSize, imgSize, 3))
+#    for layer in model.layers[:36]:
+#       layer.trainable=False
+#    x = model.output
+#    x = Flatten()(x)
+#    predictions = Dense(2, activation='softmax')(x)
+##   predictions = Dense(1, activation='sigmoid')(x)
+#    model = Model(inputs = model.input, outputs = predictions)
+     model.summary()
 # multiple GPUs
 #    model = multi_gpu_model(model, gpus=16)
 #    # resume from checkpoint
@@ -272,14 +272,14 @@ def buildModel(pathBase):
 #        print("Resumed model's weights from {}".format(savedModelFiles[-1]))
 #        # load weights
 #        model.load_weights(os.path.join(pathBase, savedModelFiles[-1]))
-
-    # compile
-    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), 
-        # loss=keras.losses.binary_crossentropy, 
-        loss=keras.losses.sparse_categorical_crossentropy, 
-        metrics=['acc'])
+#
+#    # compile
+#    model.compile(optimizer=keras.optimizers.Adam(lr=0.001), 
+#        # loss=keras.losses.binary_crossentropy, 
+#        loss=keras.losses.sparse_categorical_crossentropy, 
+#        metrics=['acc'])
     
-    return model
+     return model
     
 if __name__ == "__main__":
     pathBase = '../data/FaceForensics_selfreenactment_images/'
